@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AJAX</title>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body onload="getMake()">
+    <h1>API</h1>
+
+        <p>
+            The API that I selected is from FDA Recall. 
+            It provides data about products that have been recalled 
+            such as why, how many products, the offender, etc. 
+        </p>
+        <p>
+            I found this API from <a href="https://mixedanalytics.com/blog/list-actually-free-open-no-auth-needed-apis/">link</a> 
+            which I got from the reading on the website
+        </p>
+        <p>
+            I chose to focus on the city, infraction, address, and product quantity of the first 10 infractions.
+        </p>
+        <p>
+            This could be helpful for a a potential buyer to warn them of certain suppliers. 
+            It could also just be informative to teach people what not to do.
+        </p>
+
+    <div id="data"></div>
+    <table style="width: 100%">
+        <tr>
+            <th>City</th>
+            <th>Infraction</th>
+            <th>Address</th>
+            <th>Quantity</th>
+        </tr>
+        <tbody id="myTable"></tbody>
+    </table>
+
+    <script>
+		function getMake() {
+			/* Step 1: Make instance of request object...
+			...to make HTTP request after page is loaded*/
+			request = new XMLHttpRequest();
+			console.log("1 - request object created");
+ 
+			// Step 2: Set the URL for the AJAX request to be the JSON file
+ 
+		request.open("GET", "https://api.fda.gov/food/enforcement.json?limit=10", true)
+
+			console.log("2 - opened request file");
+ 
+			// Step 3: set up event handler/callback
+
+			request.onreadystatechange = function() {
+				console.log("3 - readystatechange event fired.");
+ 
+				if (request.readyState == 4 && request.status == 200) {
+
+					// Step 5: wait for done + success
+					console.log("5 - response received");
+
+
+					result = request.responseText;
+
+					par = JSON.parse(result);
+                    str = JSON.stringify(par);
+
+                    table = document.getElementById("myTable");
+
+
+                    for (i = 0; i < 10; i++) {
+                        row = `<tr>
+                                <td>${par.results[i].city}</td>
+                                <td>${par.results[i].reason_for_recall}</td>
+                                <td>${par.results[i].address_1}</td>
+                                <td>${par.results[i].product_quantity}</td>
+                                </tr>`
+                        table.innerHTML += row;
+                    }	
+				}
+				else if (request.readyState == 4 && request.status != 200) {
+
+					document.getElementById("data").innerHTML = "Something is wrong!  Check the logs to see where this went off the rails";
+
+				}
+
+				else if (request.readyState == 3) {
+
+					document.getElementById("data").innerHTML = "Too soon!  Try again";
+
+				}
+
+			}
+		// Step 4: fire off the HTTP request
+			request.send();
+			console.log("4 - Request sent");
+		}
+	</script>
+    
+</body>
+</html>
